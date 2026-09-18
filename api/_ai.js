@@ -1,15 +1,34 @@
-// Konteks singkat + panggilan ke OpenRouter (DeepSeek).
+// Konteks singkat + panggilan ke OpenRouter (model AI).
 // Dipakai bersama oleh api/rekomendasi.js dan api/tanya-ai.js.
 //
 // Batasan nyata: fungsi serverless Vercel paket Hobby menghentikan eksekusi
 // setelah ~10 detik. Konteks sengaja diringkas supaya hasil datang cepat,
 // dan kita pakai AbortController agar panggilan nggak menggantung.
+//
+// Ketahanan: kalau model utama (default DeepSeek) 429 / lambat / timeout,
+// kita otomatis jatuh ke model cadangan (default gpt-4o-mini, yang cepet & stabil.
+// Anggaran waktu dibagi per-percobaan supaya satu model yang macet nggak
+// menghabiskan seluruh jatah waktu.
 
-const MODEL = process.env.AI_MODEL || 'deepseek/deepseek-chat';
+const DEFAULT_MODELS = ['deepseek/deepseek-chat', 'openai/gpt-4o-mini'];
+const DEADLINE_MS = 9500; // batas total nyata, di bawah 10 s limit Vercel
+
+function daftarModel() {
+  const dariEnv = (process.env.AI_MODEL || '')
+    .split(',').map(s => s.trim()).filter(Boolean);
+  const fallback = (process.env.AI_FALLBACK_MODEL || '')
+    .split(',').map(s => s.trim()).filter(Boolean);
+  const semua = dariEnv.concat(DEFAULT_MODELS).concat(fallback);
+  return semua.filter((v, i, a) => v && a.indexOf(v) === i); // de-dup, urutan dipertahankan
+}
 
 // Konteks satu paragraf dari data yang sama dengan dashboard.
 // Cuma data sungguhan dari Strava + pengukuran manual — tidak ada angka karangan.
+
 export function ringkas(sesi, stats, manual) {
+  if (typeof manual === 'string') {
+    try { manual = JSON.parse(manual); } catch { manual = null; }
+  }
   const bagian = [];
   if (stats) {
     if (stats.lari) {
@@ -43,7 +62,8 @@ export function ringkas(sesi, stats, manual) {
   return bagian.join('\n') || 'Belum ada data aktivitas.';
 }
 
-// Panggil OpenRouter; return isi pesan model. Lempar Error kalau gagal/timeout.
+// Panggil OpenRouter; coba model utama dulu, lalu jatuh ke cadangan kalau gagal./
+// Return isi pesan model. Lempar Error berisi pesan terakhir kalau semua gagal./
 export async function panggilAI(pesan, { json = false } = {}) {
   const key = process.env.OPENROUTER_API_KEY;
   if (!key) {
@@ -51,30 +71,55 @@ export async function panggilAI(pesan, { json = false } = {}) {
     e.kode = 'AI_ENV_KURANG';
     throw e;
   }
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 9000);
+
+  const modelList = daftarModel();
+  const tAwal = Date.now();
+  const total = new AbortController();
+  const totalTimer = setTimeout(() => total.abort(), DEADLINE_MS);
+  let pesanTerakhir = null;
+
   try {
-    const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + key,
-        'HTTP-Referer': process.env.VERCEL_URL ? 'https://' + process.env.VERCEL_URL : 'https://my-capacity.vercel.app'
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        response_format: json ? { type: 'json_object' } : undefined,
-        messages: pesan
-      }),
-      signal: ctrl.signal
-    });
-    if (!r.ok) {
-      const teks = await r.text();
-      throw new Error('OpenRouter ' + r.status + ': ' + teks.slice(0, 150));
+    for (const model of modelList) {
+      // Anggaran: percobaan pertama (model utama) dapat 6 s, cadangan 4 s.
+      const sisa = DEADLINE_MS - (Date.now() - tAwal);
+      if (sisa < 1200) break;
+      const jatah = Math.min(modelList[0] === model ? 6000 : 4000, sisa);
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), jatah);
+      try {
+        const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + key,
+            'HTTP-Referer': process.env.VERCEL_URL ? 'https://' + process.env.VERCEL_URL : 'https://my-capacity.vercel.app'
+          },
+          body: JSON.stringify({
+            model,
+            response_format: json ? { type: 'json_object' } : undefined,
+            messages: pesan
+          }),
+          signal: ctrl.signal
+        });
+        if (!r.ok) {
+          const teks = await r.text();
+          pesanTerakhir = new Error(model + ' ' + r.status + ': ' + teks.slice(0, 120));
+          continue; // jatuh ke model cadangan
+        }
+        const d = await r.json();
+        const isi = d.choices?.[0]?.message?.content ?? '';
+        if (isi.trim()) return isi;
+        pesanTerakhir = new Error(model + ' mengembalikan respons kosong.');
+      } catch (e) {
+        pesanTerakhir = new Error(model + ': ' + (e.name === 'AbortError' ? 'timeout ' + Math.round(jatah / 1000) + ' s' : e.message));
+        if (total.signal.aborted) break;
+      } finally {
+        clearTimeout(timer);
+      }
     }
-    const d = await r.json();
-    return d.choices?.[0]?.message?.content ?? '';
   } finally {
-    clearTimeout(timer);
+    clearTimeout(totalTimer);
   }
+
+  throw pesanTerakhir || new Error('Semua model AI gagal balas.');
 }
