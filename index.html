@@ -183,6 +183,8 @@ th.num{text-align:right}
       <svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13.5h4l2.5-6 4 12 2.5-6h5"/></svg>Kapasitas fisik</button>
     <button class="nav-i" data-go="sesi">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h14v16H5z"/><path d="M8.5 9h7M8.5 13h7M8.5 17h4"/></svg>Sesi latihan</button>
+    <button class="nav-i" data-go="jadwal">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 8v4l3 2"/></svg>Target &amp; Jadwal</button>
     <button class="nav-i" data-go="ai">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 8H6a2 2 0 0 0-2 2v7h2"/><path d="M6 17v3"/><path d="M16 8h2a2 2 0 0 1 2 2v7h-2"/><path d="M18 17v3"/><path d="M9 12h6M9 15h4"/><path d="M9 8.5V11c0 1.4 1.3 2 3 2s3-.6 3-2V8.5"/><path d="M8 3h8v5a4 4 0 0 1-8 0z"/></svg>Tanya AI</button>
   </div>
@@ -314,6 +316,82 @@ th.num{text-align:right}
           <button class="btn-o" id="aiSend">Kirim</button>
         </div>
         <div class="note" style="margin-top:10px">Jawaban AI tidak menggantikan nasihat dokter. Bila ragu soal kesehatan, konsultasikan dulu.</div>
+      </section>
+    </div>
+  </main>
+
+  <main class="page hide" id="p-jadwal">
+    <div class="stack">
+      <section class="panel">
+        <div class="panel-k">🎯 Target Program — Sehat di Atas Rata-Rata</div>
+        <p style="margin-bottom:14px">Endurance &amp; Strength Training · update 13 September · 28 thn · 170 cm / 66.3 kg · Berau, Kalimantan Timur</p>
+        <div class="tbl-w"><table class="tbl">
+          <thead><tr><th>Metrik</th><th>Sekarang</th><th>Target</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td><b>Body Fat</b></td><td>33.8%</td><td>18–22%</td><td>🔴</td></tr>
+            <tr><td><b>Skeletal Muscle</b></td><td>36.3%</td><td>44–48%</td><td>🔴</td></tr>
+            <tr><td><b>Visceral Fat</b></td><td>10.6</td><td>&lt; 7</td><td>🔴</td></tr>
+            <tr><td><b>BIA Score</b></td><td>56.8 / 100</td><td>&gt; 75</td><td>🔴</td></tr>
+            <tr><td><b>Physiological Age</b></td><td>33 thn</td><td>26–28 thn</td><td>🔴</td></tr>
+            <tr><td><b>VO2max</b></td><td>41–44 ml/kg</td><td>≥ 52 ml/kg</td><td>🟡</td></tr>
+            <tr><td><b>Pace easy run</b></td><td>8:43–11:27 /km</td><td>7:30–8:30 /km</td><td>🟡</td></tr>
+            <tr><td><b>HR avg easy run</b></td><td>111–143 bpm</td><td>&lt; 125 bpm</td><td>🟡</td></tr>
+            <tr><td><b>Kadence</b></td><td>153–175 spm</td><td>170–175 spm</td><td>🟡</td></tr>
+            <tr><td><b>Resting HR (tidur)</b></td><td>55 bpm</td><td>&lt; 50 bpm</td><td>🟡</td></tr>
+            <tr><td><b>HRV Baseline</b></td><td>63 ms</td><td>≥ 75 ms stabil</td><td>🟡</td></tr>
+            <tr><td><b>HR Recovery (1 mnt)</b></td><td>14–22 bpm</td><td>≥ 25 bpm</td><td>🟡</td></tr>
+            <tr><td><b>Durasi tidur</b></td><td>5j–8j (tidak stabil)</td><td>7–8 jam konsisten</td><td>🟡</td></tr>
+            <tr><td><b>Jam tidur</b></td><td>21:49–00:46</td><td>Maks 22:30</td><td>🟡</td></tr>
+            <tr><td><b>Sleep score</b></td><td>79–89 (fluktuatif)</td><td>≥ 85 stabil</td><td>🟡</td></tr>
+          </tbody>
+        </table></div>
+        <div class="note" style="margin-top:10px">🔴 Belum mulai berubah · 🟡 Dalam progres · ✅ Tercapai</div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-k">🗓 Jadwal Latihan Mingguan</div>
+        <div class="tbl-w"><table class="tbl">
+          <thead><tr><th style="width:90px">Hari</th><th>Sesi</th><th style="width:180px">Target</th><th>Catatan</th></tr></thead>
+          <tbody>
+            <tr><td class="tgl">Senin</td><td><b>Strength Upper</b></td><td>30–35 mnt (jika OK)</td><td>Syarat: HR pagi ≤60 + kaki tak nyeri + tidur ≥7j</td></tr>
+            <tr><td class="tgl">Selasa</td><td><b>Easy Run Z2</b></td><td>45 mnt · HR &lt; 125</td><td>Pace 10:00–10:30 /km. Lihat HR, bukan pace.</td></tr>
+            <tr><td class="tgl">Rabu</td><td><b>Kadence Drill</b></td><td>35 mnt</td><td>Target 172 spm stabil</td></tr>
+            <tr><td class="tgl">Kamis</td><td><b>Strength Lower</b> ⚠</td><td>40–45 mnt WAJIB</td><td>Goblet squat, RDL, glute bridge, plank. Mode: Strength Training</td></tr>
+            <tr><td class="tgl">Jumat</td><td><b>Easy Run Z2</b> ⚠</td><td>45 mnt WAJIB</td><td>Pola skip Jumat adalah kelemahan terbesar program</td></tr>
+            <tr><td class="tgl">Sabtu</td><td><b>Long / Trail Run</b></td><td>Progresif</td><td>Pagi sebelum 07:00. Bawa air</td></tr>
+            <tr><td class="tgl">Minggu</td><td>💤 Istirahat</td><td>—</td><td>Tidak ada latihan</td></tr>
+          </tbody>
+        </table></div>
+      </section>
+
+      <div class="split">
+        <section class="panel">
+          <div class="panel-k">🏋 Senin — Upper Body + Core</div>
+          <div class="item"><div class="item-s">Push-up / Incline — 3×12-15 rep</div></div>
+          <div class="item"><div class="item-s">Overhead Press —  3×10-12 rep (4kg/tangan)</div></div>
+          <div class="item"><div class="item-s">Dumbbell Row —  3×10-12 rep/tangan</div></div>
+          <div class="item"><div class="item-s">Dead Bug —‑3×8 rep/sisi</div></div>
+          <div class="item"><div class="item-s">Side Plank —‑2×35 dtk/sisi</div></div>
+          <div class="item"><div class="item-s">Bird Dog —‑3×8 rep/sisi</div></div>
+          <div class="note" style="margin-top:10px">HR target &lt; 115 bpm · Mode: Strength Training</div>
+        </section>
+        <section class="panel">
+          <div class="panel-k">🏋 Kamis — Lower Body + Core</div>
+          <div class="item"><div class="item-s">Goblet Squat —‑3×15 rep (8kg)</div></div>
+          <div class="item"><div class="item-s">Reverse Lunge —‑3×12 rep/kaki</div></div>
+          <div class="item"><div class="item-s">Glute Bridge —‑3×15 rep, tahan 3 dtk</div></div>
+          <div class="item"><div class="item-s">Romanian Deadlift —‑3×10 rep</div></div>
+          <div class="item"><div class="item-s">Plank —‑3×60 dtk</div></div>
+          <div class="item"><div class="item-s">Copenhagen Plank —‑2×20 dtk/sisi (M6+)</div></div>
+          <div class="note" style="margin-top:10px">HR target &lt; 120 bpm · Mode: Strength Training</div>
+        </section>
+      </div>
+
+      <section class="panel">
+        <div class="panel-k">🏸 Aturan Padel</div>
+        <div class="item"><div class="item-s">✅ Boleh Selasa setelah easy run · Jumat sebagai pengganti easy run</div></div>
+        <div class="item"><div class="item-s">✅ Sabtu boleh — WAJIB tidur siang 3 jam sebelumnya (HR padel 97–114 bpm vs tanpa tidur siang 118–179 bpm)</div></div>
+        <div class="item"><div class="item-s">⚠ Hindari: Rabu, Kamis, Minggu</div></div>
       </section>
     </div>
   </main>
@@ -637,12 +715,13 @@ const HDR={
   fisik: ['Kapasitas fisik','Tujuh penanda yang menentukan skor','Lihat metode','metode'],
   sesi:  ['Sesi latihan','Ditarik otomatis dari Strava','Unduh CSV','unduh'],
   ai:    ['Tanya AI','Tanya soal latihan — dijawab pakai data Strava-mu','Kembali','home'],
+  jadwal:['Target &amp; Jadwal','Target program + jadwal mingguan Endurance &amp; Strength','Kembali','home'],
   metode:['Metode','Bagaimana setiap skor dihitung','Kembali','home']
 };
 function go(p){
   if(p==='muat'){tarik(1);return}
   if(p==='unduh'){unduh();return}
-  ['home','fisik','sesi','ai','metode'].forEach(k=>document.getElementById('p-'+k).classList.toggle('hide',k!==p));
+  ['home','fisik','sesi','ai','jadwal','metode'].forEach(k=>document.getElementById('p-'+k).classList.toggle('hide',k!==p));
   const h=HDR[p];
   document.getElementById('hT').textContent=h[0];
   document.getElementById('hS').textContent=h[1];
