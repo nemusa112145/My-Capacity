@@ -230,6 +230,17 @@ th.num{text-align:right}
           </section>
         </div>
       </div>
+
+      <section class="panel">
+        <div class="panel-k">Tanya AI</div>
+        <div id="tanyaOut" class="empty">Tanya soal latihan atau kapasitasmu — dijawab pakai data Strava-mu sendiri.</div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <input id="tanyaInput" type="text" placeholder="Contoh: aku habis sepeda 50 km, besok kerja lembur. Sebaiknya latihan apa?"
+            style="flex:1;min-width:0;padding:12px 14px;border:1px solid var(--border,#e0e0e0);border-radius:12px;font:inherit;font-size:14px;background:var(--card,#fff);color:inherit;outline:none">
+          <button class="btn-o" id="tanyaBtn" style="white-space:nowrap">Tanya</button>
+        </div>
+        <div class="note" style="margin-top:10px">Jawaban AI tidak menggantikan nasihat dokter. Bila ragu soal kesehatan, konsultasikan dulu.</div>
+      </section>
     </div>
   </main>
 
@@ -384,6 +395,61 @@ function fokusMinggu(){
   return out.slice(0,3);
 }
 
+/* Rekomendasi AI — coba endpoint, kalau gagal/timeout, pakai heuristik di atas. */
+async function renderFokus(){
+  const el=document.getElementById('fokus');
+  const dasar=fokusMinggu()
+    .map(f=>'<div class="item"><div class="item-t">'+esc(f[0])+'</div><div class="item-s">'+esc(f[1])+'</div></div>').join('');
+  el.innerHTML=dasar; // sediakan cadangan segera, lalu ganti kalau AI datang
+  try{
+    const r=await fetch('/api/rekomendasi',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        sesi, stats,
+        manual:{ vo2:MANUAL.vo2, hrIstirahat:MANUAL.hrIstirahat, hrv:MANUAL.hrv, lemak:MANUAL.lemak, otot:MANUAL.otot }
+      })});
+    if(!r.ok){const j=await r.json().catch(()=>({}));if(j.kode!=='AI_ENV_KURANG')throw new Error(j.error);return}
+    const d=await r.json();
+    if(d.rekomendasi&&d.rekomendasi.length){
+      el.innerHTML=d.rekomendasi
+        .map(x=>'<div class="item"><div class="item-t">'+esc(x.judul)+'</div><div class="item-s">'+esc(x.isi)+'</div></div>')
+        .join('');
+    }
+  }catch(e){
+    // biarkan heuristik yang sudah ter-render tetap tampil
+  }
+}
+
+/* Tanya AI — chat interaktif pakai data yang sama. */
+let tanyaHist=[];
+async function kirimTanya(){
+  const inp=document.getElementById('tanyaInput');
+  const pesan=(inp.value||'').trim();
+  if(!pesan)return;
+  const out=document.getElementById('tanyaOut');
+  const tombol=document.getElementById('tanyaBtn');
+  out.innerHTML='<div class="item"><div class="item-s">Memikirkan jawaban…</div></div>';
+  inp.disabled=tombol.disabled=true;
+  try{
+    const r=await fetch('/api/tanya-ai',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        pesan, sesi, stats,
+        manual:{ vo2:MANUAL.vo2, hrIstirahat:MANUAL.hrIstirahat, hrv:MANUAL.hrv, lemak:MANUAL.lemak, otot:MANUAL.otot },
+        riwayat:tanyaHist
+      })});
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok)throw new Error(j.error||('HTTP '+r.status));
+    tanyaHist.push({role:'user',content:pesan});
+    if(j.jawaban)tanyaHist.push({role:'assistant',content:j.jawaban});
+    out.innerHTML='<div class="item"><div class="item-t">'+esc(pesan)+'</div><div class="item-s">'+esc((j.jawaban||'').replace(/\n/g,'<br>'))+'</div></div>';
+  }catch(e){
+    out.innerHTML='<div class="item"><div class="item-s">😕 '+esc(e.message)+'</div></div>';
+  }finally{
+    inp.disabled=tombol.disabled=false;
+  }
+}
+document.getElementById('tanyaBtn').onclick=kirimTanya;
+document.getElementById('tanyaInput').addEventListener('keydown',e=>{if(e.key==='Enter')kirimTanya()});
+
 /* ── render ── */
 function rHome(){
   const rd=hitungKesiapan();
@@ -409,8 +475,7 @@ function rHome(){
   }).join('');
   document.getElementById('caiN').textContent=Math.round(sf*.35)+' dari 35';
 
-  document.getElementById('fokus').innerHTML=fokusMinggu()
-    .map(f=>'<div class="item"><div class="item-t">'+esc(f[0])+'</div><div class="item-s">'+esc(f[1])+'</div></div>').join('');
+  renderFokus();
 
   const lari=sesi.filter(s=>s.j==='lari'||s.j==='trail').reduce((a,b)=>a+(b.km||0),0);
   const sep=sesi.filter(s=>s.j==='sepeda').reduce((a,b)=>a+(b.km||0),0);

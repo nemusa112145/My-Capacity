@@ -8,6 +8,9 @@ api/_strava.js       penukar refresh token → access token
 api/activities.js    daftar aktivitas
 api/stats.js         total sepanjang waktu dan 4 minggu terakhir
 api/setup.js         halaman sekali pakai untuk memberi izin Strava
+api/_ai.js           konteks singkat + panggilan OpenRouter (DeepSeek)
+api/rekomendasi.js   dua-tiga rekomendasi minggu ini berbasis AI
+api/tanya-ai.js     fitur "Tanya AI" — jawab pertanyaan pelatihan
 vercel.json          konfigurasi
 package.json         menandai proyek sebagai ES module
 .env.example         daftar environment variable
@@ -64,6 +67,22 @@ Halaman akan menampilkan **refresh token**. Salin nilainya, lalu di Vercel tamba
 Buka tab Deployments, pilih deployment terakhir, tekan **Redeploy**.
 
 Selesai. Dashboard akan menarik aktivitas otomatis.
+
+### 6. Aktifkan Rekomendasi & Tanya AI (opsional)
+
+Setelah Strava tersambung dan dashboard berjalan, tambahkan satu environment
+variable agar kedua fitur AI aktif:
+
+| Nama | Nilai |
+|---|---|
+| `OPENROUTER_API_KEY` | dari [openrouter.ai/settings/keys](https://openrouter.ai/settings/keys) |
+
+Opsional `AI_MODEL` bisa mengganti modelnya (default `deepseek/deepseek-chat`,
+murah dan cocok untuk ringkasan pelatihan). Setelah menambahkan, tekan **Redeploy**.
+
+Tanpa `OPENROUTER_API_KEY`, dashboard tetap berfungsi penuh: kolom "Fokus minggu
+ini" memakai heuristik cadangan dan kolom "Tanya AI" menampilkan pesan bahwa
+kunci belum diisi.
 
 ---
 
