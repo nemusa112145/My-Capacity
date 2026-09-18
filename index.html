@@ -39,6 +39,19 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .led.go{background:var(--strava);animation:pulse 1s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
 
+/* panel Tanya AI di sidebar (narrow) */
+.nav-ai{margin:14px 0 0;padding:12px 10px 0;border-top:1px solid var(--line)}
+.ai-t{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);margin-bottom:7px}
+.ai-out{font-size:11.5px;line-height:1.45;color:var(--ink-3);background:var(--fill);border:1px solid var(--line);border-radius:9px;padding:7px 9px;margin:0 0 8px;max-height:96px;min-height:22px;overflow:auto;white-space:pre-wrap}
+.ai-out:empty{display:none}
+.ai-q{font-weight:600;color:var(--ink-2);margin-bottom:3px}
+.ai-a{color:var(--ink-2)}
+.ai-in{display:flex;gap:6px}
+.ai-in input{flex:1;min-width:0;font:inherit;font-size:12px;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:inherit;outline:none}
+.ai-in button{flex:none;font-size:13px;font-weight:600;color:var(--blue);background:var(--fill);border:1px solid var(--line);border-radius:8px;padding:0 11px;cursor:pointer}
+.ai-in button:hover{background:#eeedea}
+.ai-in button[disabled],.ai-in input[disabled]{opacity:.55;cursor:default}
+
 .main{min-width:0}
 .top{position:sticky;top:0;z-index:20;background:rgba(250,249,245,.82);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid rgba(0,0,0,.08)}
 .top-in{max-width:1080px;margin:0 auto;padding:18px 40px 14px;display:flex;align-items:flex-start;justify-content:space-between;gap:20px}
@@ -179,6 +192,14 @@ th.num{text-align:right}
       <svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.8v.3"/></svg>Metode</button>
   </div>
   <div class="nav-f">
+    <div class="nav-ai">
+      <div class="ai-t">Tanya AI</div>
+      <div id="tanyaOut" class="ai-out">Tanya soal latihan atau kapasitasmu — dijawab pakai data Strava-mu sendiri.</div>
+      <div class="ai-in">
+        <input id="tanyaInput" type="text" placeholder="Tanya soal latihan…">
+        <button id="tanyaBtn">➔</button>
+      </div>
+    </div>
     <div class="sync"><span class="led" id="led"></span><span id="ledTxt">Menyambung…</span></div>
     Data aktivitas ditarik langsung dari Strava.
   </div>
@@ -230,17 +251,6 @@ th.num{text-align:right}
           </section>
         </div>
       </div>
-
-      <section class="panel">
-        <div class="panel-k">Tanya AI</div>
-        <div id="tanyaOut" class="empty">Tanya soal latihan atau kapasitasmu — dijawab pakai data Strava-mu sendiri.</div>
-        <div style="display:flex;gap:8px;margin-top:12px">
-          <input id="tanyaInput" type="text" placeholder="Contoh: aku habis sepeda 50 km, besok kerja lembur. Sebaiknya latihan apa?"
-            style="flex:1;min-width:0;padding:12px 14px;border:1px solid var(--border,#e0e0e0);border-radius:12px;font:inherit;font-size:14px;background:var(--card,#fff);color:inherit;outline:none">
-          <button class="btn-o" id="tanyaBtn" style="white-space:nowrap">Tanya</button>
-        </div>
-        <div class="note" style="margin-top:10px">Jawaban AI tidak menggantikan nasihat dokter. Bila ragu soal kesehatan, konsultasikan dulu.</div>
-      </section>
     </div>
   </main>
 
@@ -427,7 +437,7 @@ async function kirimTanya(){
   if(!pesan)return;
   const out=document.getElementById('tanyaOut');
   const tombol=document.getElementById('tanyaBtn');
-  out.innerHTML='<div class="item"><div class="item-s">Memikirkan jawaban…</div></div>';
+  out.innerHTML='<div class="ai-a">Memikirkan jawaban…</div>';
   inp.disabled=tombol.disabled=true;
   try{
     const r=await fetch('/api/tanya-ai',{method:'POST',headers:{'Content-Type':'application/json'},
@@ -440,9 +450,9 @@ async function kirimTanya(){
     if(!r.ok)throw new Error(j.error||('HTTP '+r.status));
     tanyaHist.push({role:'user',content:pesan});
     if(j.jawaban)tanyaHist.push({role:'assistant',content:j.jawaban});
-    out.innerHTML='<div class="item"><div class="item-t">'+esc(pesan)+'</div><div class="item-s">'+esc((j.jawaban||'').replace(/\n/g,'<br>'))+'</div></div>';
+    out.innerHTML='<div class="ai-q">'+esc(pesan)+'</div><div class="ai-a">'+esc((j.jawaban||'').replace(/\n/g,'<br>'))+'</div>';
   }catch(e){
-    out.innerHTML='<div class="item"><div class="item-s">😕 '+esc(e.message)+'</div></div>';
+    out.innerHTML='<div class="ai-a">😕 '+esc(e.message)+'</div>';
   }finally{
     inp.disabled=tombol.disabled=false;
   }
