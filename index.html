@@ -216,13 +216,13 @@ th.num{text-align:right}
 
       <section class="hero">
         <div class="hero-l">
-          <div class="hero-lbl">Kesiapan hari ini</div>
+          <div class="hero-lbl">Sinyal intensitas hari ini</div>
           <div class="hero-n"><div class="hero-v disp" id="rdVal">—</div><div class="hero-u">/ 100</div></div>
           <div class="pill-d" id="rdLbl">—</div>
         </div>
         <div class="hero-r">
           <div id="rdWhy"></div>
-          <div class="hero-foot">Dihitung dari kapasitas fisik dan beban latihan 7 hari terakhir. Tiga kapasitas lain belum punya data masukan.</div>
+          <div class="hero-foot">Sinyal buat latihan <b>HARI INI</b> — bukan ukuran endurance jangka panjang. Skor rendah = pelan, tetap boleh gerak; skor tinggi = boleh ngegas. Dihitung dari kapasitas fisik + beban 7 hari terakhir.</div>
         </div>
       </section>
 
@@ -295,8 +295,8 @@ th.num{text-align:right}
         </section>
       </div>
       <div class="stack">
-        <section class="panel"><div class="panel-k">Kesiapan harian</div>
-          <p>Memakai tiga masukan: skor fisik, jumlah hari sejak sesi berat terakhir, dan beban latihan 7 hari terakhir dalam jam. Angka ini sinyal untuk mengatur intensitas hari ini, bukan vonis.</p></section>
+        <section class="panel"><div class="panel-k">Sinyal intensitas harian</div>
+          <p>Tiga masukan: skor fisik, jeda sejak sesi berat terakhir, beban 7 hari terakhir dalam jam. Ini sinyal buat mengatur <b>seberapa keras latihan HARI INI</b>, bukan ukuran kebugaran/endurance. Skor rendah = pelan tapi tetap gerak; skor tinggi = boleh ngegas. Angka yang ngukur endurance jangka panjang itu VO2max, HR recovery, dan pace — bukan angka ini.</p></section>
         <section class="panel"><div class="panel-k">Kapasitas yang belum terisi</div>
           <p>Emosional, mental, dan spiritual butuh masukan harian yang belum tersedia: kualitas pemulihan yang dirasakan, fokus kerja, dan rasa keterhubungan dengan tujuan. Sampai masukannya ada, skornya sengaja dibiarkan kosong — bukan diisi tebakan.</p></section>
         <section class="panel"><div class="panel-k">Sumber data</div>
@@ -463,7 +463,7 @@ function hitungKesiapan(){
   const hl=M.find(m=>m.k==='hrLari');
   alasan.push(hl.c?('HR lari santai rata-rata '+hl.c+' bpm'+(hl.c<=122?', di dalam batas':', di atas batas 122')):'HR lari belum cukup data');
 
-  const label=skor>=75?'Siap':skor>=55?'Sedang':'Pulihkan dulu';
+  const label=skor>=75?'Siap ngegas':skor>=55?'Normal — pelan':'Pelan & recovery';
   return {val:skor,label:label,why:alasan};
 }
 
@@ -711,7 +711,7 @@ async function tarik(paksa){
 
 /* ── navigasi ── */
 const HDR={
-  home:  ['Ringkasan','Kesiapan dan kapasitas hari ini','Muat ulang','muat'],
+  home:   ['Ringkasan','Sinyal intensitas latihan hari ini','Muat ulang','muat'],
   fisik: ['Kapasitas fisik','Tujuh penanda yang menentukan skor','Lihat metode','metode'],
   sesi:  ['Sesi latihan','Ditarik otomatis dari Strava','Unduh CSV','unduh'],
   ai:    ['Tanya AI','Tanya soal latihan — dijawab pakai data Strava-mu','Kembali','home'],
