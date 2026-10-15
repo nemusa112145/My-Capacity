@@ -403,6 +403,14 @@ th.num{text-align:right}
 <script>
 'use strict';
 
+/* ── saklar fitur AI: false = matikan (Rekomendasi AI & Tanya AI) ── */
+const AI_AKTIF = false;
+if(!AI_AKTIF){
+  // saat AI mati, hapus tombol & halaman Tanya AI biar bersih dari sidebar/navigasi
+  document.querySelectorAll('button[data-go="ai"]').forEach(n=>n.remove());
+  const pa=document.getElementById('p-ai'); if(pa)pa.remove();
+}
+
 /* ── penanda yang tidak ada di Strava, diisi manual ── */
 const MANUAL={
   vo2:42, hrIstirahat:55, hrv:63, lemak:33.8, otot:36.3
@@ -495,9 +503,10 @@ function fokusMinggu(){
 /* Rekomendasi AI — coba endpoint, kalau gagal/timeout, pakai heuristik di atas. */
 async function renderFokus(){
   const el=document.getElementById('fokus');
-  const dasar=fokusMinggu()
+  // Tampilkan heuristik dulu sebagai cadangan (dan jadi penyajian final saat AI mati).
+  el.innerHTML=fokusMinggu()
     .map(f=>'<div class="item"><div class="item-t">'+esc(f[0])+'</div><div class="item-s">'+esc(f[1])+'</div></div>').join('');
-  el.innerHTML=dasar; // sediakan cadangan segera, lalu ganti kalau AI datang
+  if(!AI_AKTIF)return; // AI dimatikan — cukup heuristik, tanpa panggilan AI
   try{
     const r=await fetch('/api/rekomendasi',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
@@ -551,9 +560,11 @@ async function kirimTanya(){
     aiLog().scrollTop=aiLog().scrollHeight;
   }
 }
-document.getElementById('aiSend').onclick=kirimTanya;
-document.getElementById('aiInput').addEventListener('keydown',e=>{if(e.key==='Enter')kirimTanya()});
-aiLog().innerHTML=bubble('ai','Halo! Tanya soal latihan, pemulihan, atau kapasitas—aku jawab pakai data Strava-mu. Contoh: <em>"hidup aku lagi sibuk, lari tetap target 3x seminggu nggak?"</em>');
+if(AI_AKTIF){
+  document.getElementById('aiSend').onclick=kirimTanya;
+  document.getElementById('aiInput').addEventListener('keydown',e=>{if(e.key==='Enter')kirimTanya()});
+  aiLog().innerHTML=bubble('ai','Halo! Tanya soal latihan, pemulihan, atau kapasitas—aku jawab pakai data Strava-mu. Contoh: <em>"hidup aku lagi sibuk, lari tetap target 3x seminggu nggak?"</em>');
+}
 
 /* ── render ── */
 function rHome(){
@@ -716,14 +727,14 @@ const HDR={
   home:   ['Ringkasan','Sinyal intensitas latihan hari ini','Muat ulang','muat'],
   fisik: ['Kapasitas fisik','Tujuh penanda yang menentukan skor','Lihat metode','metode'],
   sesi:  ['Sesi latihan','Ditarik otomatis dari Strava','Unduh CSV','unduh'],
-  ai:    ['Tanya AI','Tanya soal latihan — dijawab pakai data Strava-mu','Kembali','home'],
+  ...(AI_AKTIF?{ai:['Tanya AI','Tanya soal latihan — dijawab pakai data Strava-mu','Kembali','home']}:{}),
   jadwal:['Target &amp; Jadwal','Target program + jadwal mingguan Endurance &amp; Strength','Kembali','home'],
   metode:['Metode','Bagaimana setiap skor dihitung','Kembali','home']
 };
 function go(p){
   if(p==='muat'){tarik(1);return}
   if(p==='unduh'){unduh();return}
-  ['home','fisik','sesi','ai','jadwal','metode'].forEach(k=>document.getElementById('p-'+k).classList.toggle('hide',k!==p));
+  Object.keys(HDR).forEach(k=>document.getElementById('p-'+k).classList.toggle('hide',k!==p));
   const h=HDR[p];
   document.getElementById('hT').textContent=h[0];
   document.getElementById('hS').textContent=h[1];

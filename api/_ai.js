@@ -65,6 +65,12 @@ export function ringkas(sesi, stats, manual) {
 // Panggil OpenRouter; coba model utama dulu, lalu jatuh ke cadangan kalau gagal./
 // Return isi pesan model. Lempar Error berisi pesan terakhir kalau semua gagal./
 export async function panggilAI(pesan, { json = false } = {}) {
+  // Saklar global: set env AI_MATI=1 di Vercel buat matiin total + nolak panggilan.
+  if (process.env.AI_MATI === '1') {
+    const e = new Error('Fitur AI sedang dimatikan.');
+    e.kode = 'AI_MATI';
+    throw e;
+  }
   const key = process.env.OPENROUTER_API_KEY;
   if (!key) {
     const e = new Error('OPENROUTER_API_KEY belum diisi di Environment Variables Vercel.');
